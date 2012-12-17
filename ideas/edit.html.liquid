@@ -1,0 +1,30 @@
+<!-- Add new idea form -->
+<div class="support-container">
+
+    <a href="javascript:history.go(-1)" class="btn-back">BACK</a>
+
+    <form id="entry_form" method="post" action="{{space.permalink}}/ideas" class="clearfix" enctype="multipart/form-data">
+        <input type="hidden" name="_method" value="put" />
+        <div id="new-idea">
+            <h3>Editing {{ idea.title }}</h3>
+            <fieldset>
+                <input class="span4 required" id="idea_title" name="idea[title]" type="text" placeholder="{{theme.idea_context | capitalize}} title">
+
+                <select id="idea_custom1" name="idea[custom1]">
+                    <option value="Support">Support</option>
+                    <option value="Suggestions">Suggestions</option>
+                    <option value="General">General</option>
+                </select>
+
+                <div class="input"><textarea id="idea_content" name="idea[content]" rows="3" placeholder="Your {{theme.idea_context}}" class="required"></textarea></div>
+                <div class="checkarea"><input type="checkbox" name="idea[should_post_to_social]" value="1" checked /> <span>share this {{theme.idea_context}} to {{ current_user.provider }}?</span></div>
+                <input type="submit" value="add {{theme.idea_context}}" class="btn primary submit" />
+            </fieldset>
+        </div>
+    </form>
+
+</div>
+
+{% if current_user %}
+<div class="current-user">logged in as {{current_user.nickname}}. <a href="/auth/signout" class="logout ss-logout"><strong>logout</strong></a></div>
+{% endif %}

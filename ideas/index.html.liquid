@@ -1,0 +1,74 @@
+<div class="tagline">
+    <h1>{{space.title}}</h1>
+    <span class="summary">{{space.summary}}</span>
+</div>
+
+<div id="mast">
+    <div id="map"></div>
+</div>
+
+<nav id="filters">
+
+    <div class="btn-group">
+        <a href="{{space.permalink}}" class="btn {% if filter == "own" %}{% else %}{% if sort == "like" %}{% else %}active{% endif %}{% endif %}">Newest</a>
+        <a href="?sort=like" class="btn {% if sort == "like" %}active{% endif %}">Popular</a>
+    </div>
+
+    {% if current_user %}
+    <a href="#" data-reveal-id="add-entry" class="btn btn-add">Local business? Add your shop</a>
+    {% else %}
+    <a href="#" data-reveal-id="social-login" class="btn btn-add">Local business? Add your shop</a>
+    {% endif %}
+
+</nav>
+
+<ul id="stores" class="block-list">
+
+    {% if space.ideas != empty %}
+        {% for idea in space.ideas %}
+        <li>
+            <a href="{{idea.permalink}}" title="permalink for {{%idea.title%}}" class="venue-image"><img src="{{idea.images.first.square}}" alt="" width="60" class="thumbnail" /></a>
+            <div class="meta">
+                <h3><a href="{{idea.permalink}}" title="permalink for {{%idea.title%}}">{{idea.title | truncate: 28}}</a></h3>
+                <span class="reviews-count"><i>&#59160;</i>{{ idea.comments_count }}</span>
+                <span class="like-count"><i>&hearts;</i>{{idea.likes}}</span>
+            </div>
+        </li>
+        {% endfor %}
+    {% else %}
+        <div class="empty">
+            No shops have been added yet!
+        </div>
+    {% endif %}
+
+</ul>
+
+<script>
+
+    $(document).ready(function(){
+
+        var map = new GMaps({
+            lat: 51.45,
+            lng: -2.58,
+            zoom: 12,
+            div: '#map'
+        })
+
+        {% if space.ideas != empty %}
+            {% for idea in space.ideas %}
+            {% if idea.custom3 != empty %}
+                map.drawOverlay({
+                    lat: {{idea.custom3}},
+                    lng: {{idea.custom4}},
+                    content: '<a href="{{idea.permalink}}" class="pin"><img src="{{idea.images.first.square}}" alt="" width="20" class="thumbnail" /></a>',
+                    click: function(e) {
+                        alert('You clicked in this marker');
+                    }
+                });
+            {% endif %}
+            {% endfor %}
+        {% endif %}
+
+    })
+
+</script>

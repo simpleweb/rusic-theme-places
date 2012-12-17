@@ -1,0 +1,161 @@
+{% if env == "development" %}
+  {% assign asset_url="http://rusic-theme-local" %}
+{% else %}
+  {% assign asset_url="https://s3.amazonaws.com/rusic-theme-local" %}
+{% endif %}
+
+<div id="mast">
+
+    <div id="gallery">
+        <div class="carousel">
+            {% for image in idea.images %}
+            <div class="venue-image slide">
+                <img src="{{image.medium_square}}" alt="{{idea.title}}" width="450" height="450" />
+            </div>
+            {% endfor %}
+            {% if idea.custom3 != empty %}
+            <div class="venue-image slide">
+                <div id="Map" style="width: 450px; height:450px;"></div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="thumbs">
+          {% for image in idea.images %}
+          <a href="" class="venue-image"><img src="{{image.square}}" width="80" alt="{{idea.title}}" /></a>
+          {% endfor %}
+          {% if idea.custom3 != empty %}
+          <a href="" class="venue-image"><img src="{{ asset_url }}/img/mapthumb.png" width="80" /></a>
+          {% endif %}
+        </div>
+    </div>
+
+    <article id="detail">
+        <h2>{{idea.title}}</h2>
+
+        <div class="meta">
+            <span class="reviews-count"><i>&#59160;</i> {{ idea.comments_count }} Reviews</span>
+            <span class="like-count"><i>&hearts;</i> {{idea.likes}} Likes</span>
+        </div>
+
+        <div class="content">
+            {{idea.content | markdown}}
+        </div>
+
+        {% if idea.custom2 != empty %}
+        <div class="website">
+            <strong>Website:</strong>
+            <a href="http://{{idea.custom2}}" title="link to {{idea.title}}'s website">{{idea.custom2}}</a>
+        </div>
+        {% endif %}
+
+        <div id="actions">
+            <a href="#add-review" class="reviews-count btn"><i>&#59160;</i>Add a review</a>
+            {% if current_user %}
+                {% if idea.liked? %}
+                <span class="action-like action on btn on"><i>&hearts;</i> Liked</span>
+                {% else %}
+                <span class="action-like action btn" the_link="{{idea.like_link}}"><i>&hearts;</i> Like</span>
+                {% endif %}
+            {% else %}
+                <a href="" data-reveal-id="social-login-user" class="action-like action btn"><i>&hearts;</i> Like</a>
+            {% endif %}
+        </div>
+
+        <div id="share" class="btn-group">
+            <a href="http://www.facebook.com/sharer.php?u={{ idea | permalink: 'url' }}" class="btn"><i class="icon-social">&#62220;</i> Share to Facebook</a>
+            <a href="http://twitter.com/home?status=Check out {{ idea.user.nickname }}'s {{theme.idea_context}} on {{space.title}} - {{ idea | permalink: 'url' }}" title="#" class="btn"><i class="icon-social">&#62217;</i> Share to Twitter</a>
+            <a href="https://plus.google.com/share?url={{ idea | permalink: 'url' }}" title="#" class="btn"><i class="icon-social">&#62223;</i> Share to Google+</a>
+        </div>
+
+    </article>
+
+</div>
+
+<!-- REVIEWS -->
+<div id="reviews">
+    <h2>Reviews <span class="count">{{ idea.comments_count }}</span></h2>
+
+    <ul class="user-reviews">
+
+        {% if idea.comments != empty %}
+        {% for comment in idea.comments %}
+        <li>
+
+            <div class="user-meta">
+                <a href="{{ comment.user.profile_url }}" title="link to {{ comment.user.nickname }}'s profile on {{ comment.user.provider }}"><img src="{{comment.user.image_url}}" alt="avatar for {{%comment.user.name%}}" width="70" height="70" class="avatar" /></a>
+                <div class="user-details">
+                    <span class="review-author">{{ comment.user.nickname }}</span>
+                    <span class="review-date">{{ comment.created_at | date: "%b %m %Y" }}</span>
+                </div>
+            </div>
+
+            <div class="review-content">
+                {{ comment.body | markdown }}
+            </div>
+
+        </li>
+        {% endfor %}
+        {% else %}
+
+            {% if current_user %}
+            <li class="empty">Nobody has reviewed {{idea.title}} yet, why not add your review below!</li>
+            {% else %}
+            <li class="empty">Nobody has reviewed {{idea.title}} yet, login with <a href="/auth/facebook" title="link to login to {{space.title}} with Facebook" class="login-facebook">Facebook</a> or <a href="/auth/twitter" title="link to login to {{space.title}} with Twitter" class="login-twitter">Twitter</a> to add your review!</li>
+            {% endif %}
+
+
+        {% endif %}
+
+    </ul>
+
+</div>
+
+
+<!-- ADD REVIEW -->
+<div id="add-review">
+    <h2>Add your review <span class="count">+</span></h2>
+
+    {% if current_user %}
+    <form action="{{idea.permalink}}/comments" method="post">
+        <div class="input"><textarea id="comment_body" name="comment[body]"></textarea></div>
+        <div class="checkarea"><input class="checkbox" type="checkbox" id="comment_should_post_to_social" name="comment[should_post_to_social]" value="1" checked="checked" /> <label for="comment_should_post_to_social">share my review to {{current_user.provider}}?</label></div>
+        <input type="submit" name="submit" value="Post review" class="btn primary submit" />
+    </form>
+    {% else %}
+    <form action="#" method="#">
+        <div class="input"><textarea id="comment_body" class="logged-out" name="comment[body]"></textarea></div>
+        <div class="checkarea"><input class="checkbox" type="checkbox" id="comment_should_post_to_social" name="comment[should_post_to_social]" value="1" checked="checked" /> <label for="comment_should_post_to_social">share my review?</label></div>
+        <span class="btn primary submit disabled">Post review</span>
+    </form>
+    {% endif %}
+
+</div>
+
+<script>
+
+    $(document).ready(function(){
+
+        var map = new GMaps({
+            lat: {{idea.custom3}},
+            lng: {{idea.custom4}},
+            zoom: 16,
+            div: '#Map',
+            scaleControl: false,
+            mapTypeControl: false,
+            streetViewControl: false,
+            zoomControl: false
+        })
+
+        map.drawOverlay({
+            lat: {{idea.custom3}},
+            lng: {{idea.custom4}},
+            content: '<span class="pin"><img src="{{idea.images.first.square}}" alt="" width="20" class="thumbnail" /></span>',
+            click: function(e) {
+                alert('You clicked in this marker');
+            }
+        });
+
+    })
+
+</script>
