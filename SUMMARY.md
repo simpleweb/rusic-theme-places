@@ -1,0 +1,1 @@
+Allow shop owners to add their store to the "Places" theme. All shops appear on the interactive map. Users can "like" their favourite shops and even submit reviews. All with the usual social features of Rusic.
